@@ -22,14 +22,21 @@ const App = () => {
     {
       id: 3,
       name: 'Payments This Month',
-      value: '$12,340',
+      value: '₹12,340',
       icon: DollarSign,
       color: 'bg-green-500',
     },
     {
       id: 4,
       name: 'Upcoming Renewals',
-      value: '78',
+      value: '8',
+      icon: Calendar,
+      color: 'bg-red-500',
+    },
+    {
+      id: 4,
+      name: 'Expired Membership',
+      value: '10',
       icon: Calendar,
       color: 'bg-red-500',
     },
