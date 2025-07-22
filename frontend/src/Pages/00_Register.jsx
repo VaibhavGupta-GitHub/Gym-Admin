@@ -1,27 +1,37 @@
 import React, { useState } from 'react';
+import axios from 'axios'
 
 function Register() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
+
+  const admin = {
+    username: username,
+    email: email,
+    password: password,
+    confirm_password: confirmPassword,
+  }
 
   const handleRegister = (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match.");
+      alert("Passwords do not match.");
       return;
     }
 
-    // Simulate success
-    setMessage("Registration successful! You can now log in.");
-    setTimeout(() => {
-      setMessage('');
-      // Redirect to login page (in real app)
-      // window.location.href = "/login";
-    }, 2000);
+axios.post('http://127.0.0.1:8000/api/register', admin)
+      .then(response=>{
+        alert(response.data)
+        console.log(response.data.detail)
+      })
+      .catch(error=>{
+        console.log(error)
+      })
+
+
   };
 
   return (
@@ -108,12 +118,6 @@ function Register() {
           </button>
         </form>
 
-        {/* Feedback Message */}
-        {message && (
-          <p className={`mt-6 text-center text-sm ${message.includes('successful') ? 'text-green-400' : 'text-red-400'}`}>
-            {message}
-          </p>
-        )}
 
         {/* Link to Login */}
         <div className="mt-8 text-center text-gray-400 text-sm">
