@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import axios from 'axios'
+import React, { useState } from "react";
+import axios from "axios";
 
 function Register() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const admin = {
     username: username,
     email: email,
     password: password,
     confirm_password: confirmPassword,
-  }
+  };
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -22,32 +22,35 @@ function Register() {
       return;
     }
 
-axios.post('http://127.0.0.1:8000/api/register', admin)
-      .then(response=>{
-        alert(response.data)
-        console.log(response.data.detail)
+    axios
+      .post("http://127.0.0.1:8000/api/register", admin)
+      .then((response) => {
+        alert(response.data.message);
+        console.log(response);
       })
-      .catch(error=>{
-        console.log(error)
-      })
-
-
+      .catch((error) => {
+        alert(error.response.data.detail);
+        console.log(error);
+      });
   };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-inter">
       <div className="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-[1.01] border border-gray-700">
         <div className="text-center mb-8">
-          <div className="text-red-500 text-5xl font-extrabold mb-2">
-            GYM
-          </div>
-          <h1 className="text-gray-200 text-2xl font-semibold">Admin Register</h1>
+          <div className="text-red-500 text-5xl font-extrabold mb-2">GYM</div>
+          <h1 className="text-gray-200 text-2xl font-semibold">
+            Admin Register
+          </h1>
         </div>
 
         <form onSubmit={handleRegister}>
           {/* Username */}
           <div className="mb-6">
-            <label htmlFor="username" className="block text-gray-400 text-sm font-medium mb-2">
+            <label
+              htmlFor="username"
+              className="block text-gray-400 text-sm font-medium mb-2"
+            >
               Username
             </label>
             <input
@@ -63,7 +66,10 @@ axios.post('http://127.0.0.1:8000/api/register', admin)
 
           {/* Email */}
           <div className="mb-6">
-            <label htmlFor="email" className="block text-gray-400 text-sm font-medium mb-2">
+            <label
+              htmlFor="email"
+              className="block text-gray-400 text-sm font-medium mb-2"
+            >
               Email Address
             </label>
             <input
@@ -79,7 +85,10 @@ axios.post('http://127.0.0.1:8000/api/register', admin)
 
           {/* Password */}
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-400 text-sm font-medium mb-2">
+            <label
+              htmlFor="password"
+              className="block text-gray-400 text-sm font-medium mb-2"
+            >
               Password
             </label>
             <input
@@ -95,7 +104,10 @@ axios.post('http://127.0.0.1:8000/api/register', admin)
 
           {/* Confirm Password */}
           <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block text-gray-400 text-sm font-medium mb-2">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-gray-400 text-sm font-medium mb-2"
+            >
               Confirm Password
             </label>
             <input
@@ -118,11 +130,13 @@ axios.post('http://127.0.0.1:8000/api/register', admin)
           </button>
         </form>
 
-
         {/* Link to Login */}
         <div className="mt-8 text-center text-gray-400 text-sm">
-          Already have an account?{' '}
-          <a href="/login" className="text-red-400 hover:text-red-500 transition duration-200 ease-in-out">
+          Already have an account?{" "}
+          <a
+            href="/login"
+            className="text-red-400 hover:text-red-500 transition duration-200 ease-in-out"
+          >
             Login
           </a>
         </div>
