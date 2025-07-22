@@ -1,26 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
 
 // Main App component
 function App() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  const admin_login = {
+    username: email,
+    password: password,
+  };
   // Handle login submission
   const handleLogin = (e) => {
     e.preventDefault();
-    // In a real application, you would send these credentials to a backend for authentication.
-    // For this example, we'll just show a success or error message.
-    if (email === 'admin@gym.com' && password === 'password123') {
-      setMessage('Login successful! Redirecting...');
-      // Simulate redirection
-      setTimeout(() => {
-        setMessage('');
-        // window.location.href = '/dashboard'; // Example redirection
-      }, 2000);
-    } else {
-      setMessage('Invalid email or password.');
-    }
+    axios
+      .post("http://127.0.0.1:8000/api/login", admin_login)
+      .then((response) => {
+        alert(response.data.message);
+        console.log(response);
+      })
+      .catch((error) => {
+        alert(error.response.data.detail);
+        console.log(error);
+      });
   };
 
   return (
@@ -31,9 +33,7 @@ function App() {
         {/* Gym Logo Placeholder */}
         <div className="text-center mb-8">
           {/* Using a simple text placeholder for the logo */}
-          <div className="text-blue-500 text-5xl font-extrabold mb-2">
-            GYM
-          </div>
+          <div className="text-blue-500 text-5xl font-extrabold mb-2">GYM</div>
           <h1 className="text-gray-200 text-2xl font-semibold">Admin Login</h1>
         </div>
 
@@ -41,7 +41,10 @@ function App() {
         <form onSubmit={handleLogin}>
           {/* Email Input */}
           <div className="mb-6">
-            <label htmlFor="email" className="block text-gray-400 text-sm font-medium mb-2">
+            <label
+              htmlFor="email"
+              className="block text-gray-400 text-sm font-medium mb-2"
+            >
               Email Address
             </label>
             <input
@@ -57,7 +60,10 @@ function App() {
 
           {/* Password Input */}
           <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-400 text-sm font-medium mb-2">
+            <label
+              htmlFor="password"
+              className="block text-gray-400 text-sm font-medium mb-2"
+            >
               Password
             </label>
             <input
@@ -80,17 +86,14 @@ function App() {
           </button>
         </form>
 
-        {/* Message Display */}
-        {message && (
-          <p className={`mt-6 text-center text-sm ${message.includes('successful') ? 'text-green-400' : 'text-red-400'}`}>
-            {message}
-          </p>
-        )}
-
         {/* Optional: Forgot Password / Sign Up links */}
         <div className="mt-8 text-center text-gray-400 text-sm">
-          <a href="#" className="hover:text-blue-400 transition duration-200 ease-in-out">
-            Forgot Password?
+          Don't have an account?{" "}
+          <a
+            href="/"
+            className="text-blue-600 hover:text-blue-700 transition duration-200 ease-in-out"
+          >
+            Sign Up
           </a>
           {/* <span className="mx-2">|</span>
           <a href="#" className="hover:text-blue-400 transition duration-200 ease-in-out">
