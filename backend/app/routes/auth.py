@@ -34,20 +34,21 @@ router = APIRouter(tags=["Auth"])
 @router.post("/login", response_model=LoginResponse)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     # Query the database for an admin with the given username
-    admin = db.query(Admin).filter(Admin.username == login_data.username).first()
-
+    
+    admin = db.query(Admin).filter(Admin.email == login_data.username).first()
+    print(admin)
     # If no admin found, raise an unauthorized error
     if not admin:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Invalid username or password 1"
         )
 
     # Verify the password provided against the hashed password stored in the database
     if not verify_password(login_data.password, admin.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
+            detail="Invalid username or password 2"
         )
 
     # If credentials are correct, generate a JWT access token
