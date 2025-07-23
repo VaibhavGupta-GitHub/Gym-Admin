@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie"; 
+import { useNavigate } from "react-router-dom";
 
 // Main App component
 function App() {
+  const use_navigate = useNavigate()
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,6 +22,11 @@ function App() {
       .then((response) => {
         alert(response.data.message);
         console.log(response);
+        const token = response.data.access_token;
+        Cookies.set('token', token, { secure:true, sameSite: 'Strict' })
+        if (token) {
+          use_navigate("/admin")
+        }
       })
       .catch((error) => {
         alert(error.response.data.detail);
