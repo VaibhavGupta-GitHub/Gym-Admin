@@ -99,7 +99,7 @@ function App() {
         <div className="mt-8 text-center text-gray-400 text-sm">
           Don't have an account?{" "}
           <a
-            href="/"
+            href="/register"
             className="text-blue-600 hover:text-blue-700 transition duration-200 ease-in-out"
           >
             Sign Up

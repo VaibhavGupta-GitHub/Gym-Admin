@@ -16,7 +16,7 @@ const navItems = [
   { name: "Members", icon: Users, path: "/members" },
   { name: "Payments", icon: CreditCard, path: "/payments" },
   { name: "Settings", icon: Settings, path: "/settings" },
-  { name: "Logout", icon: LogOut, path: "/login" },
+  { name: "Logout", icon: LogOut, path: "/" },
 ];
 
 const Navbar = ({ children }) => {

@@ -10,6 +10,7 @@ import PaymentEntry from "./Pages/06_Payment_Entry";
 import UpcomingRenewal from "./Pages/07_Upcoming_Renewal";
 import Settings from "./Pages/08_Settings";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const ProtectedLayout = ({ children }) => {
   return <Navbar>{children}</Navbar>; // Page content inside sidebar + topbar
@@ -20,64 +21,78 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         {/* Public routes (without layout) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Register />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Protected routes (with layout) */}
         <Route
           path="/admin"
           element={
-            <ProtectedLayout>
-              <AdminDashboard />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <AdminDashboard />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/members"
           element={
-            <ProtectedLayout>
-              <MemberManagement />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <MemberManagement />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/add-member"
           element={
-            <ProtectedLayout>
-              <AddMembers />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <AddMembers />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/payments"
           element={
-            <ProtectedLayout>
-              <PaymentTracker />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <PaymentTracker />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/payment-entry"
           element={
-            <ProtectedLayout>
-              <PaymentEntry />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <PaymentEntry />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/upcoming-renewal"
           element={
-            <ProtectedLayout>
-              <UpcomingRenewal />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <UpcomingRenewal />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/settings"
           element={
-            <ProtectedLayout>
-              <Settings />
-            </ProtectedLayout>
+            <ProtectedRoute>
+              <ProtectedLayout>
+                <Settings />
+              </ProtectedLayout>
+            </ProtectedRoute>
           }
         />
       </Routes>
