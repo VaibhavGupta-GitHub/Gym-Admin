@@ -134,7 +134,7 @@ function Register() {
         <div className="mt-8 text-center text-gray-400 text-sm">
           Already have an account?{" "}
           <a
-            href="/login"
+            href="/"
             className="text-red-400 hover:text-red-500 transition duration-200 ease-in-out"
           >
             Login
