@@ -17,7 +17,7 @@ function App() {
 
   const baseURL = window.location.hostname === "localhost"
   ? "http://127.0.0.1:8000"
-  : "https://http://172.28.157.206";
+  : "";
 
   // Handle login submission
   const handleLogin = (e) => {
