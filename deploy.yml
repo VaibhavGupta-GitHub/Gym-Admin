@@ -1,0 +1,26 @@
+name: Deploy FastAPI to VM
+
+on:
+  push:
+    branches:
+      - main  # or your default branch name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code from GitHub
+      uses: actions/checkout@v3
+
+    - name: SSH into VM and deploy FastAPI
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /home/dead/deployment_test/gym/Gym-Admin/backend
+          git pull origin main
+          sudo systemctl restart gym-fastapi.service
+          

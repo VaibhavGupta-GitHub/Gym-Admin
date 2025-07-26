@@ -14,11 +14,16 @@ function App() {
     username: email,
     password: password,
   };
+
+  const baseURL = window.location.hostname === "localhost"
+  ? "http://127.0.0.1:8000"
+  : "";
+
   // Handle login submission
   const handleLogin = (e) => {
     e.preventDefault();
     axios
-      .post("http://127.0.0.1:8000/api/login", admin_login)
+      .post(`${baseURL}/api/login`, admin_login)
       .then((response) => {
         alert(response.data.message);
         console.log(response);
