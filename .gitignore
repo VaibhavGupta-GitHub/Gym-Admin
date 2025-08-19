@@ -9,13 +9,21 @@ lerna-debug.log*
 
 # Python virtual environment
 venv/
+.venv/
 .env
 
-__pycache__/
+# Python cache
+**/__pycache__/
 
-node_modules
-dist
-dist-ssr
+# Node dependencies
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Local files
 *.local
 
 # Editor directories and files
