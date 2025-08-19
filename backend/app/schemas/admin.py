@@ -45,4 +45,8 @@ class AdminCreate(BaseModel):
     password: str                  # Password for account login
     confirm_password: str          # Password confirmation for validation
 
-
+class AdminPasswordReset(BaseModel):
+    email: EmailStr
+    old_password: str
+    new_password: str
+    confirm_new_password: str

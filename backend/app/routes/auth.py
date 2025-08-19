@@ -16,10 +16,11 @@ from app.database import get_db
 from app.models.admin import Admin
 
 # Import request and response schemas for login
-from app.schemas.admin import LoginRequest, LoginResponse
+from app.schemas.admin import LoginRequest, LoginResponse, AdminCreate, AdminPasswordReset
 
 # Import password verification function
 from app.auth.password_handler import verify_password
+from app.auth.password_handler import hash_password
 
 # Import function to generate a JWT token
 from app.auth.jwt_handler import create_access_token
@@ -41,14 +42,14 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     if not admin:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password 1"
+            detail="Invalid username"
         )
 
     # Verify the password provided against the hashed password stored in the database
     if not verify_password(login_data.password, admin.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password 2"
+            detail="Invalid password"
         )
 
     # If credentials are correct, generate a JWT access token
@@ -58,9 +59,7 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     return LoginResponse(access_token=access_token, message="Login successful")
 
 
-# Additional imports for registration functionality
-from app.schemas.admin import AdminCreate
-from app.auth.password_handler import hash_password
+
 
 
 # Registration route - handles POST requests to /register
@@ -90,3 +89,38 @@ def register(admin_data: AdminCreate, db: Session = Depends(get_db)):
 
     # Return a success message upon successful registration
     return {"message": "Registration successful"}
+
+
+
+# Password reset route
+@router.post("/reset-password")
+def reset_password(data: AdminPasswordReset, db: Session = Depends(get_db)):
+    # Find admin by email
+    admin = db.query(Admin).filter(Admin.email == data.email).first()
+
+    # If admin doesn't exist, raise error
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Admin account not found"
+        )
+
+    # Verify old password
+    if not verify_password(data.old_password, admin.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect current password"
+        )
+
+    # Ensure new passwords match
+    if data.new_password != data.confirm_new_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New passwords do not match"
+        )
+
+    # Hash and update the new password
+    admin.hashed_password = hash_password(data.new_password)
+    db.commit()
+
+    return {"message": "Password reset successful"}
