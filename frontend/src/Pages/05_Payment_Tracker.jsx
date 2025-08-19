@@ -19,11 +19,11 @@ function App() {
     // Initialize with some dummy data or load from storage
     const storedPayments = localStorage.getItem('gymPayments');
     return storedPayments ? JSON.parse(storedPayments) : [
-      { id: '1', memberName: 'John Doe', paymentDate: '2025-07-01', amount: 1500, paymentMethod: 'Card', notes: 'Monthly fee - July' },
-      { id: '2', memberName: 'Jane Smith', paymentDate: '2025-06-28', amount: 1200, paymentMethod: 'Cash', notes: 'Quarterly membership - Q3' },
-      { id: '3', memberName: 'Peter Jones', paymentDate: '2025-07-03', amount: 500, paymentMethod: 'UPI', notes: 'Locker rental' },
-      { id: '4', memberName: 'Alice Brown', paymentDate: '2025-07-02', amount: 1800, paymentMethod: 'Bank Transfer', notes: 'Annual membership' },
-      { id: '5', memberName: 'Bob White', paymentDate: '2025-06-25', amount: 750, paymentMethod: 'Card', notes: 'Personal training session' },
+      { id: '1', memberName: 'Yash Nigam', paymentDate: '2025-07-01', amount: 1500, paymentMethod: 'Card', notes: 'Monthly fee - July' },
+      { id: '2', memberName: 'Rishabh Sakhya', paymentDate: '2025-06-28', amount: 1200, paymentMethod: 'Cash', notes: 'Quarterly membership - Q3' },
+      { id: '3', memberName: 'Vishal Prajapati', paymentDate: '2025-07-03', amount: 500, paymentMethod: 'UPI', notes: 'Locker rental' },
+      { id: '4', memberName: 'Aman Shukla', paymentDate: '2025-07-02', amount: 1800, paymentMethod: 'Bank Transfer', notes: 'Annual membership' },
+      { id: '5', memberName: 'Amit Sharma', paymentDate: '2025-06-25', amount: 750, paymentMethod: 'Card', notes: 'Personal training session' },
     ];
   });
 

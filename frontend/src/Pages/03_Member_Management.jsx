@@ -84,7 +84,6 @@ const App = () => {
       console.error("Add failed:", error);
       alert("Could not add member.");
     }
-
   };
 
   // Handle editing an existing member
@@ -121,7 +120,7 @@ const App = () => {
       alert("Successfully deleted member.")
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Failed to delete member.")
+      alert("Failed to delete member.");
     }
   };
 
