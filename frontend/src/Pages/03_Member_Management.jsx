@@ -88,16 +88,18 @@ const App = () => {
 
   // Handle editing an existing member
   const handleEditMember = async (updatedMember) => {
-    try{
+    try {
       // const updated = {
       //   ...updatedMember,
       //   email: updatedMember.email?.trim() === "" ? null : updatedMember.email?.trim(),
       //   notes: updatedMember.notes?.trim() === "" ? null : updatedMember.notes?.trim(),
-      // } 
+      // }
       console.log("Updating : ", updatedMember);
       const response = await API.put(`/${updatedMember.id}`, updatedMember);
-      setMembers((prev) => 
-        prev.map((member) => (member.id === updatedMember.id ? response.data : member))
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.id === updatedMember.id ? response.data : member
+        )
       );
       setShowModal(false);
       setCurrentMember(null);
@@ -117,7 +119,7 @@ const App = () => {
     try {
       await API.delete(`/${id}`);
       setMembers((prev) => prev.filter((member) => member.id !== id));
-      alert("Successfully deleted member.")
+      alert("Successfully deleted member.");
     } catch (error) {
       console.error("Delete failed:", error);
       alert("Failed to delete member.");
@@ -172,6 +174,9 @@ const App = () => {
             <thead className="bg-teal-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider rounded-tl-xl">
+                  Member ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider rounded-tl-xl">
                   Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
@@ -198,6 +203,9 @@ const App = () => {
                     key={member.id}
                     className="hover:bg-teal-50 transition duration-150 ease-in-out"
                   >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {member.id}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {member.name}
                     </td>

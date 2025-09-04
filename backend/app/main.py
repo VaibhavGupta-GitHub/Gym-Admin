@@ -11,7 +11,9 @@ app = FastAPI()
 
 # Define which origins (frontends) are allowed to make requests to this API
 origins = [
-    "http://localhost:5897",  # Example: your frontend development server URL
+    "http://localhost:5897",
+    "http://127.0.0.1:5897",
+    "http://localhost:5898",  
 ]
 
 # Add CORS middleware to allow frontend → backend requests

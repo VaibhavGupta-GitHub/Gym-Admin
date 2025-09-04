@@ -1,45 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import API from "../API/paymentsAPI";
+import PlanAPI from "../API/plansAPI";
 
-// Tailwind CSS configuration (for context, normally in tailwind.config.js)
-// This is included here for completeness of the self-contained app.
-// In a real project, these colors would be defined in tailwind.config.js
-// and automatically available.
 const tailwindConfigColors = {
-  'fitness-primary': '#4CAF50', // A nice green for accent
-  'fitness-secondary': '#FFC107', // An amber for secondary accents
-  'fitness-background-light': '#F8F9FA', // Light background
-  'fitness-text-dark': '#212529', // Dark text
-  'fitness-card-light': '#FFFFFF', // Card background
+  "fitness-primary": "#4CAF50", // A nice green for accent
+  "fitness-secondary": "#FFC107", // An amber for secondary accents
+  "fitness-background-light": "#F8F9FA", // Light background
+  "fitness-text-dark": "#212529", // Dark text
+  "fitness-card-light": "#FFFFFF", // Card background
 };
 
 // Main App Component
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [payments, setPayments] = useState(() => {
-    // Initialize with some dummy data or load from storage
-    const storedPayments = localStorage.getItem('gymPayments');
-    return storedPayments ? JSON.parse(storedPayments) : [
-      { id: '1', memberName: 'Yash Nigam', paymentDate: '2025-07-01', amount: 1500, paymentMethod: 'Card', notes: 'Monthly fee - July' },
-      { id: '2', memberName: 'Rishabh Sakhya', paymentDate: '2025-06-28', amount: 1200, paymentMethod: 'Cash', notes: 'Quarterly membership - Q3' },
-      { id: '3', memberName: 'Vishal Prajapati', paymentDate: '2025-07-03', amount: 500, paymentMethod: 'UPI', notes: 'Locker rental' },
-      { id: '4', memberName: 'Aman Shukla', paymentDate: '2025-07-02', amount: 1800, paymentMethod: 'Bank Transfer', notes: 'Annual membership' },
-      { id: '5', memberName: 'Amit Sharma', paymentDate: '2025-06-25', amount: 750, paymentMethod: 'Card', notes: 'Personal training session' },
-    ];
-  });
+  const [payments, setPayments] = useState([]);
 
   // Effect to save payments to local storage whenever they change
-  useEffect(() => {
-    localStorage.setItem('gymPayments', JSON.stringify(payments));
-  }, [payments]);
+  const fetchPayments = async () => {
+    try {
+      const response = await API.get("/");
+      console.log(response);
+      setPayments(response.data);
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+    }
+  };
 
-  /**
-   * Handles adding a new payment to the payments list.
-   * @param {object} newPayment - The new payment object to add.
-   */
-  const handleAddPayment = (newPayment) => {
-    const newId = (payments.length > 0 ? Math.max(...payments.map(p => parseInt(p.id))) + 1 : 1).toString();
-    setPayments([...payments, { id: newId, ...newPayment }]);
-    setIsModalOpen(false); // Close the modal after adding payment
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const handleAddPayment = async (newPayment) => {
+    try {
+      const response = await API.post("/", newPayment);
+      setPayments((prev) => [...(prev || []), response.data]);
+      await fetchPayments();
+      setIsModalOpen(false);
+      alert("Payment added successfully.");
+    } catch (error) {
+      console.error("Failed to add payment:", error);
+      alert("Failed to fetch payments.");
+    }
   };
 
   return (
@@ -77,14 +78,16 @@ function App() {
 
 // PaymentsTable Component
 const PaymentsTable = ({ payments }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterMethod, setFilterMethod] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterMethod, setFilterMethod] = useState("");
 
   // Filter payments based on search term and payment method
-  const filteredPayments = payments.filter(payment => {
-    const matchesSearch = payment.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          payment.notes.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMethod = filterMethod === '' || payment.paymentMethod === filterMethod;
+  const filteredPayments = payments.filter((payment) => {
+    const matchesSearch =
+      payment.member_id.toString().includes(searchTerm.toLowerCase()) ||
+      payment.notes.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesMethod =
+      filterMethod === "" || payment.method === filterMethod;
     return matchesSearch && matchesMethod;
   });
 
@@ -115,7 +118,10 @@ const PaymentsTable = ({ payments }) => {
         </select>
         {(searchTerm || filterMethod) && (
           <button
-            onClick={() => { setSearchTerm(''); setFilterMethod(''); }}
+            onClick={() => {
+              setSearchTerm("");
+              setFilterMethod("");
+            }}
             className="text-gray-600 hover:text-gray-800 text-sm px-2 py-1 rounded-md
                        transition duration-200 ease-in-out"
           >
@@ -129,10 +135,11 @@ const PaymentsTable = ({ payments }) => {
         <table className="min-w-full table-auto">
           <thead>
             <tr className="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Member Name</th>
-              <th className="py-3 px-6 text-left">Payment Date</th>
+              <th className="py-3 px-6 text-left">Member ID</th>
+              <th className="py-3 px-6 text-left">Plan Type</th>
               <th className="py-3 px-6 text-left">Amount</th>
               <th className="py-3 px-6 text-left">Payment Method</th>
+              <th className="py-3 px-6 text-left">Payment Date</th>
               <th className="py-3 px-6 text-left">Notes</th>
             </tr>
           </thead>
@@ -142,20 +149,34 @@ const PaymentsTable = ({ payments }) => {
                 <tr
                   key={payment.id}
                   className={`border-b border-gray-200 hover:bg-gray-50
-                              ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                              ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
                 >
-                  <td className="py-3 px-6 whitespace-nowrap">{payment.memberName}</td>
-                  <td className="py-3 px-6 whitespace-nowrap">{payment.paymentDate}</td>
-                  <td className="py-3 px-6 whitespace-nowrap">₹ {payment.amount.toLocaleString('en-IN')}</td>
-                  <td className="py-3 px-6 whitespace-nowrap">{payment.paymentMethod}</td>
-                  <td className="py-3 px-6 max-w-xs truncate" title={payment.notes}>
+                  <td className="py-3 px-6 whitespace-nowrap">
+                    {payment.member_id}
+                  </td>
+                  <td className="py-3 px-6 whitespace-nowrap">
+                    {payment.plan_type}
+                  </td>
+                  <td className="py-3 px-6 whitespace-nowrap">
+                    ₹ {payment.amount.toLocaleString("en-IN")}
+                  </td>
+                  <td className="py-3 px-6 whitespace-nowrap">
+                    {payment.method}
+                  </td>
+                  <td className="py-3 px-6 whitespace-nowrap">
+                    {new Date(payment.date).toLocaleDateString()}
+                  </td>
+                  <td
+                    className="py-3 px-6 max-w-xs truncate"
+                    title={payment.notes}
+                  >
                     {payment.notes}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="py-6 text-center text-gray-500">
+                <td colSpan="6" className="py-6 text-center text-gray-500">
                   No payments found.
                 </td>
               </tr>
@@ -167,51 +188,72 @@ const PaymentsTable = ({ payments }) => {
   );
 };
 
-// AddPaymentModal Component
 const AddPaymentModal = ({ onClose, onAddPayment }) => {
-  const [memberName, setMemberName] = useState('');
-  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
-  const [amount, setAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Card');
-  const [notes, setNotes] = useState('');
+  const [memberId, setMemberId] = useState("");
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [amount, setAmount] = useState("");
+  const [method, setMethod] = useState("Card");
+  const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState({});
 
-  /**
-   * Validates the form fields.
-   * @returns {boolean} True if the form is valid, false otherwise.
-   */
-  const validateForm = () => {
-    let newErrors = {};
-    if (!memberName.trim()) newErrors.memberName = 'Member Name is required.';
-    if (!paymentDate) newErrors.paymentDate = 'Payment Date is required.';
-    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) newErrors.amount = 'Valid Amount is required.';
-    if (!paymentMethod) newErrors.paymentMethod = 'Payment Method is required.';
+  const [plans, setPlans] = useState([]);
 
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const response = await PlanAPI.get("/");
+        console.log(response.data);
+        setPlans(response.data);
+      } catch (error) {
+        console.error("Error fetching plans:", error);
+        alert("Unauthorized or faild to fetch plans.");
+      }
+    };
+    fetchPlans();
+  }, []);
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!memberId.trim()) newErrors.memberId = "Member ID is required.";
+    if (!selectedPlanId.trim()) newErrors.planType = "Plan Type is required.";
+    if (!date) newErrors.date = "Date is required.";
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0)
+      newErrors.amount = "Valid Amount is required.";
+    if (!method) newErrors.method = "Payment Method is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  /**
-   * Handles the form submission.
-   * @param {Event} e - The form submission event.
-   */
+  const handlePlanChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedPlanId(selectedId);
+    const selectedPlan = plans.find((p) => p.id.toString() === selectedId);
+    if (selectedPlan) {
+      setAmount(selectedPlan.price);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      onAddPayment({
-        memberName,
-        paymentDate,
-        amount: parseFloat(amount),
-        paymentMethod,
-        notes,
-      });
-      // Reset form fields
-      setMemberName('');
-      setAmount('');
-      setNotes('');
-      setPaymentDate(new Date().toISOString().split('T')[0]);
-      setPaymentMethod('Card');
-    }
+    if (!validateForm()) return;
+
+    onAddPayment({
+      member_id: parseInt(memberId),
+      plan_type: plans.find((p) => p.id.toString() === selectedPlanId)?.name,
+      date,
+      amount: parseFloat(amount),
+      method,
+      notes,
+    });
+
+    // Reset
+    setMemberId("");
+    setPlanType("");
+    setDate(new Date().toISOString().split("T")[0]);
+    setAmount("");
+    setMethod("Card");
+    setNotes("");
   };
 
   return (
@@ -228,72 +270,104 @@ const AddPaymentModal = ({ onClose, onAddPayment }) => {
           &times;
         </button>
 
-        <h2 className="text-2xl font-semibold text-fitness-text-dark mb-4">Add New Payment</h2>
+        <h2 className="text-2xl font-semibold text-fitness-text-dark mb-4">
+          Add New Payment
+        </h2>
 
         <form onSubmit={handleSubmit}>
-          {/* Member Name */}
+          {/* Member ID */}
           <div className="mb-4">
-            <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 mb-1">
-              Member Name
+            <label
+              htmlFor="memberId"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Member ID
             </label>
             <input
               type="text"
-              id="memberName"
-              className={`block w-full border ${errors.memberName ? 'border-red-500' : 'border-gray-300'} rounded-md p-2
-                         focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
-              value={memberName}
-              onChange={(e) => setMemberName(e.target.value)}
+              id="memberId"
+              className={`block w-full border ${
+                errors.memberId ? "border-red-500" : "border-gray-300"
+              } rounded-md p-2
+                 focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
+              value={memberId}
+              onChange={(e) => setMemberId(e.target.value)}
               required
             />
-            {errors.memberName && <p className="text-red-500 text-xs mt-1">{errors.memberName}</p>}
+            {errors.memberId && (
+              <p className="text-red-500 text-xs mt-1">{errors.memberId}</p>
+            )}
           </div>
 
-          {/* Payment Date */}
+          {/* Plan Type */}
           <div className="mb-4">
-            <label htmlFor="paymentDate" className="block text-sm font-medium text-gray-700 mb-1">
-              Payment Date
+            <label
+              htmlFor="planType"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Plan Type
             </label>
-            <input
-              type="date"
-              id="paymentDate"
-              className={`block w-full border ${errors.paymentDate ? 'border-red-500' : 'border-gray-300'} rounded-md p-2
-                         focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
-              value={paymentDate}
-              onChange={(e) => setPaymentDate(e.target.value)}
+            <select
+              id="planType"
+              className={`block w-full border ${
+                errors.planType ? "border-red-500" : "border-gray-300"
+              } rounded-md p-2 focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
+              value={selectedPlanId}
+              onChange={handlePlanChange}
               required
-            />
-            {errors.paymentDate && <p className="text-red-500 text-xs mt-1">{errors.paymentDate}</p>}
+            >
+              <option value="">Select a Plan</option>
+              {plans.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.name} — ₹{plan.price}
+                </option>
+              ))}
+            </select>
+            {errors.planType && (
+              <p className="text-red-500 text-xs mt-1">{errors.planType}</p>
+            )}
           </div>
 
           {/* Amount */}
           <div className="mb-4">
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="amount"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Amount (₹)
             </label>
             <input
               type="number"
               id="amount"
               step="0.01"
-              className={`block w-full border ${errors.amount ? 'border-red-500' : 'border-gray-300'} rounded-md p-2
-                         focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
+              className={`block w-full border ${
+                errors.amount ? "border-red-500" : "border-gray-300"
+              } rounded-md p-2 focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
             />
-            {errors.amount && <p className="text-red-500 text-xs mt-1">{errors.amount}</p>}
+            {errors.amount && (
+              <p className="text-red-500 text-xs mt-1">{errors.amount}</p>
+            )}
           </div>
 
           {/* Payment Method */}
           <div className="mb-4">
-            <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="method"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Payment Method
             </label>
             <select
-              id="paymentMethod"
-              className={`block w-full border ${errors.paymentMethod ? 'border-red-500' : 'border-gray-300'} rounded-md p-2
-                         focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
+              id="method"
+              className={`block w-full border ${
+                errors.method ? "border-red-500" : "border-gray-300"
+              } rounded-md p-2
+                 focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
               required
             >
               <option value="Card">Card</option>
@@ -301,40 +375,69 @@ const AddPaymentModal = ({ onClose, onAddPayment }) => {
               <option value="UPI">UPI</option>
               <option value="Bank Transfer">Bank Transfer</option>
             </select>
-            {errors.paymentMethod && <p className="text-red-500 text-xs mt-1">{errors.paymentMethod}</p>}
+            {errors.method && (
+              <p className="text-red-500 text-xs mt-1">{errors.method}</p>
+            )}
+          </div>
+
+          {/* Payment Date */}
+          <div className="mb-4">
+            <label
+              htmlFor="date"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Payment Date
+            </label>
+            <input
+              type="date"
+              id="date"
+              className={`block w-full border ${
+                errors.date ? "border-red-500" : "border-gray-300"
+              } rounded-md p-2
+                 focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary`}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+            />
+            {errors.date && (
+              <p className="text-red-500 text-xs mt-1">{errors.date}</p>
+            )}
           </div>
 
           {/* Notes */}
           <div className="mb-6">
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="notes"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Notes
             </label>
             <textarea
               id="notes"
               rows="3"
               className="block w-full border border-gray-300 rounded-md p-2
-                         focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary"
+                 focus:outline-none focus:border-fitness-primary focus:ring-1 focus:ring-fitness-primary"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             ></textarea>
           </div>
 
-          {/* Form Buttons */}
+          {/* Buttons */}
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
               className="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-md
-                         hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75
-                         transition duration-200 ease-in-out"
+                 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75
+                 transition duration-200 ease-in-out"
             >
               Cancel
             </button>
             <button
               type="submit"
               className="bg-fitness-primary text-white font-bold py-2 px-4 rounded-md
-                         hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75
-                         transition duration-200 ease-in-out"
+                 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75
+                 transition duration-200 ease-in-out"
             >
               Add Payment
             </button>
@@ -345,11 +448,7 @@ const AddPaymentModal = ({ onClose, onAddPayment }) => {
   );
 };
 
-// This is a placeholder for the actual Tailwind CSS setup.
-// In a real Vite/React project, you would have an index.css
-// with @tailwind directives and a tailwind.config.js file.
-// For this self-contained example, we'll simulate the global styles.
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.innerHTML = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -370,16 +469,15 @@ style.innerHTML = `
   }
 
   /* Simulate Tailwind utilities and custom colors */
-  .bg-fitness-background-light { background-color: ${tailwindConfigColors['fitness-background-light']}; }
-  .bg-fitness-card-light { background-color: ${tailwindConfigColors['fitness-card-light']}; }
-  .text-fitness-text-dark { color: ${tailwindConfigColors['fitness-text-dark']}; }
-  .bg-fitness-primary { background-color: ${tailwindConfigColors['fitness-primary']}; }
+  .bg-fitness-background-light { background-color: ${tailwindConfigColors["fitness-background-light"]}; }
+  .bg-fitness-card-light { background-color: ${tailwindConfigColors["fitness-card-light"]}; }
+  .text-fitness-text-dark { color: ${tailwindConfigColors["fitness-text-dark"]}; }
+  .bg-fitness-primary { background-color: ${tailwindConfigColors["fitness-primary"]}; }
   .hover\\:bg-green-600:hover { background-color: #22c55e; } /* Tailwind default green-600 */
   .focus\\:ring-green-500:focus { --tw-ring-color: #22c55e; } /* Tailwind default green-500 */
-  .focus\\:border-fitness-primary:focus { border-color: ${tailwindConfigColors['fitness-primary']}; }
-  .focus\\:ring-fitness-primary:focus { --tw-ring-color: ${tailwindConfigColors['fitness-primary']}; }
+  .focus\\:border-fitness-primary:focus { border-color: ${tailwindConfigColors["fitness-primary"]}; }
+  .focus\\:ring-fitness-primary:focus { --tw-ring-color: ${tailwindConfigColors["fitness-primary"]}; }
 `;
 document.head.appendChild(style);
-
 
 export default App;

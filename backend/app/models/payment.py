@@ -20,8 +20,10 @@ class Payment(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Foreign key that links this payment to a member in the "members" table
-    # This creates a relationship between Payment and Member tables
-    member_id = Column(Integer, ForeignKey("members.id"), nullable=False)
+    member_id = Column(Integer, ForeignKey("members.id"), nullable=False)   
+
+    # Type of plan associated with the payment (e.g., Monthly, Yearly, One-Time)
+    plan_type = Column(String, nullable=False)
 
     # Payment amount, with up to 10 digits total and 2 decimal places
     amount = Column(Numeric(10, 2), nullable=False)
@@ -30,12 +32,10 @@ class Payment(Base):
     method = Column(String, nullable=False)
 
     # Timestamp of when the payment was made; defaults to the current UTC time
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=datetime.now)
 
     # Optional notes field for any additional details about the payment
     notes = Column(Text, nullable=True)
 
     # Relationship to the Member model
-    # Allows you to access the member who made the payment via `payment.member`
-    # And access all related payments from a member via `member.payments`
     member = relationship("Member", backref="payments")
